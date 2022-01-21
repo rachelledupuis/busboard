@@ -1,14 +1,19 @@
-const fetch = require('node-fetch')
+const fetch = require('node-fetch');
+const readline = require('readline-sync');
+
 
 //fetch is an asynchronous function
 /* fetch('https://api.tfl.gov.uk/StopPoint/490008660N/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18')
     .then(response => response.json())
     .then(body => console.log(body)); */
-  
+
+//get stop code from user
+console.log('Please enter your stop code');
+const stopCode = readline.prompt();
 
 //synchronizes an asychronous function
 async function fetchBuses() {
-    const response = await fetch('https://api.tfl.gov.uk/StopPoint/490008660N/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18');
+    const response = await fetch('https://api.tfl.gov.uk/StopPoint/' + stopCode + '/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18');
     const buses = await response.json();
 
     buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
