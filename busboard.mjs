@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import readline from 'readline-sync';
 
-//fetch is an asynchronous function
 /* fetch('https://api.tfl.gov.uk/StopPoint/490008660N/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18')
     .then(response => response.json())
     .then(body => console.log(body)); */
@@ -13,23 +12,25 @@ function getPostcodeFromUser() {
 
 //let postcode = 'NW51TL';
 
-const postcode = getPostcodeFromUser();
-
-async function getCoordinates(postcode) {
-    try {
-        const response = await fetch(`https://api.postcodes.io/postcodes/ ${postcode}`);
-        const coordinates = await response.json();
-        const longitude = coordinates.result.longitude;
-        const latitude = coordinates.result.latitude;
-        return {longitude: longitude, latitude: latitude};
-    }
-    catch(err) {
-        console.log('Please enter a valid postcode');
-        getPostcodeFromUser();
-    }
+async function getCoordinates() {
+    let longitude = 0;
+    let latitude = 0;
+    do {
+        try {
+            const postcode = getPostcodeFromUser();
+            const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
+            const coordinates = await response.json();
+            longitude = coordinates.result.longitude;
+            latitude = coordinates.result.latitude;
+        }
+        catch(err) {
+            console.log('Invalid postcode.');
+        }
+    } while (longitude == 0 && latitude == 0);
+return {longitude: longitude, latitude: latitude};
 }
 
-let coordinates = await getCoordinates(postcode);
+const coordinates = await getCoordinates();
 
 async function fetchStopCode(lat, long){
 
@@ -62,4 +63,4 @@ async function fetchBuses() {
 }
 }
 
-await fetchBuses(stopCodes);
+await fetchBuses(stopCodes); 
