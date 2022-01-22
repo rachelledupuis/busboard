@@ -6,20 +6,27 @@ import readline from 'readline-sync';
     .then(response => response.json())
     .then(body => console.log(body)); */
 
-//get post code from user
-console.log('Please enter your post code');
-const postcode = readline.prompt();
+function getPostcodeFromUser() {
+    console.log('Please enter your postcode');
+    return readline.prompt(); 
+};
 
 //let postcode = 'NW51TL';
 
+const postcode = getPostcodeFromUser();
+
 async function getCoordinates(postcode) {
-    const response1 = await fetch(`https://api.postcodes.io/postcodes/ ${postcode}`);
-    const coordinates = await response1.json();
-
-    let longitude = coordinates.result.longitude;
-    let latitude = coordinates.result.latitude;
-
-    return {longitude: longitude, latitude: latitude};
+    try {
+        const response = await fetch(`https://api.postcodes.io/postcodes/ ${postcode}`);
+        const coordinates = await response.json();
+        const longitude = coordinates.result.longitude;
+        const latitude = coordinates.result.latitude;
+        return {longitude: longitude, latitude: latitude};
+    }
+    catch(err) {
+        console.log('Please enter a valid postcode');
+        getPostcodeFromUser();
+    }
 }
 
 let coordinates = await getCoordinates(postcode);
@@ -45,6 +52,8 @@ async function fetchBuses() {
     
     buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
     let firstFiveBuses = buses.slice(0, 5);
+
+    console.log(`The next buses leaving from ${firstFiveBuses[0].stationName}:`);
    
     for (const bus of firstFiveBuses) {
         let minutes = Math.floor(bus.timeToStation / 60)
