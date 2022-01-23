@@ -50,20 +50,30 @@ return nearestTwoStations.map(station => station.id);
 }
 
 async function fetchBuses(stopCodes) {
-    for (const stop of stopCodes) {
-    const response = await fetch('https://api.tfl.gov.uk/StopPoint/' + stop + '/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18');
-    const buses = await response.json();
-    
-    buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
-    let firstFiveBuses = buses.slice(0, 5);
+    try {
+        for (const stop of stopCodes) {
+            const response = await fetch('https://api.tfl.gov.uk/StopPoint/' + stop + '/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18');
+            const buses = await response.json();
 
-    console.log(`The next buses leaving from ${firstFiveBuses[0].stationName}:`);
-   
-    for (const bus of firstFiveBuses) {
-        let minutes = Math.floor(bus.timeToStation / 60)
-        console.log (`Bus ${bus.lineName} to ${bus.destinationName} is arriving in ${minutes} minutes.`)
+            if (buses.length === 0) {
+                throw 'No buses';
+            }
+            
+            buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
+            let firstFiveBuses = buses.slice(0, 5);
+
+            console.log(`The next buses leaving from ${firstFiveBuses[0].stationName}:`);
+    
+            for (const bus of firstFiveBuses) {
+                let minutes = Math.floor(bus.timeToStation / 60)
+                console.log (`Bus ${bus.lineName} to ${bus.destinationName} is arriving in ${minutes} minutes.`)
+            }
+        }
     }
-}
+    catch(err) {
+        console.log('There are no buses scheduled to arrive at your two nearest stops.')
+        throw err;
+    }
 }
 
 async function busBoard() {
