@@ -5,12 +5,12 @@ import readline from 'readline-sync';
     .then(response => response.json())
     .then(body => console.log(body)); */
 
+    //let postcode = 'NW51TL';
+
 function getPostcodeFromUser() {
-    console.log('Please enter your postcode');
+    console.log('Please enter your postcode:');
     return readline.prompt(); 
 };
-
-//let postcode = 'NW51TL';
 
 async function getCoordinates() {
     let longitude = 0;
@@ -30,23 +30,26 @@ async function getCoordinates() {
 return {longitude: longitude, latitude: latitude};
 }
 
-const coordinates = await getCoordinates();
-
 async function fetchStopCode(lat, long){
-
-    const response = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=400`);
-    const searchResults = await response.json();
- 
-    searchResults.stopPoints.sort((dist1, dist2) => dist1.distance - dist2.distance);
-    let nearestTwoStations = searchResults.stopPoints.slice(0, 2);
-
-    return nearestTwoStations.map(station => station.id);
+    let nearestTwoStations = [];
+    let radius = 400;
+        try {
+            const response = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=${radius}`);
+            const searchResults = await response.json();
+            searchResults.stopPoints.sort((dist1, dist2) => dist1.distance - dist2.distance);
+            nearestTwoStations = searchResults.stopPoints.slice(0, 2);
+            if (nearestTwoStations.length == 0) {
+                throw 'No stops';
+            }
+        }
+        catch(err) {
+            console.log('There are no bus stops within 400m');
+            throw err;
+        }
+return nearestTwoStations.map(station => station.id);
 }
-    
-let stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
-console.log(stopCodes);
 
-async function fetchBuses() {
+async function fetchBuses(stopCodes) {
     for (const stop of stopCodes) {
     const response = await fetch('https://api.tfl.gov.uk/StopPoint/' + stop + '/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18');
     const buses = await response.json();
@@ -63,4 +66,10 @@ async function fetchBuses() {
 }
 }
 
-await fetchBuses(stopCodes); 
+async function busBoard() {
+    const coordinates = await getCoordinates();
+    const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
+    return fetchBuses(stopCodes); 
+}
+
+ busBoard();
