@@ -1,0 +1,17 @@
+{"level":"info","message":"***************New Instance*****************"}
+{"level":"error","message":"Invalid postcode."}
+{"level":"info","message":"***************New Instance*****************"}
+{"level":"warn","message":"You entered NYY"}
+{"level":"error","message":"Invalid postcode."}
+{"level":"warn","message":"You entered NW51TL"}
+{"level":"info","message":"Bus Arrivals at Greenwood Centre:"}
+{"level":"info","message":"Bus 214 to Moorgate, Finsbury Square is arriving in 5 minutes."}
+{"level":"info","message":"Bus 88 to Clapham Common is arriving in 10 minutes."}
+{"level":"info","message":"Bus 214 to Moorgate, Finsbury Square is arriving in 17 minutes."}
+{"level":"info","message":"Bus 88 to Clapham Common is arriving in 22 minutes."}
+{"level":"info","message":"Bus 214 to Moorgate, Finsbury Square is arriving in 29 minutes."}
+{"level":"info","message":"Bus Arrivals at Lady Somerset Road:"}
+{"level":"info","message":"Bus 88 to Parliament Hill Fields is arriving in 5 minutes."}
+{"level":"info","message":"Bus 214 to Highgate Village is arriving in 8 minutes."}
+{"level":"info","message":"Bus 88 to Parliament Hill Fields is arriving in 15 minutes."}
+{"level":"info","message":"Bus 214 to Highgate Village is arriving in 20 minutes."}
