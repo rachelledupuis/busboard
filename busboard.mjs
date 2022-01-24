@@ -25,6 +25,9 @@ async function getCoordinates() {
         try {
             postcode = getUserInput('Please enter your postcode');
             const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
+            if (!response.ok) {
+                throw 'Invalid postcode';
+            }
             const coordinates = await response.json();
             longitude = coordinates.result.longitude;
             latitude = coordinates.result.latitude;
@@ -40,23 +43,16 @@ return {longitude: longitude, latitude: latitude, postcode};
 async function fetchStopCode(lat, long){
     let nearestTwoStations = [];
     let radius = 400;
-        try {
             const response = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=${radius}`);
             const searchResults = await response.json();
             searchResults.stopPoints.sort((dist1, dist2) => dist1.distance - dist2.distance);
             nearestTwoStations = searchResults.stopPoints.slice(0, 2);
             if (nearestTwoStations.length == 0) {
-                throw 'No stops';
+                logger.warn('There are no bus stops within 400m');
             }
-        }
-        catch(err) {
-            console.log('There are no bus stops within 400m');
-            throw err;
-        }
 return nearestTwoStations.map(station => station.id);
 }
 
-let firstFiveBuses;
 
 async function fetchBuses(stopCodes) {
     try {
@@ -69,7 +65,7 @@ async function fetchBuses(stopCodes) {
             }
             
             buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
-            firstFiveBuses = buses.slice(0, 5);
+            let firstFiveBuses = buses.slice(0, 5);
 
             console.log(`The next buses leaving from ${firstFiveBuses[0].stationName}:`);
     
