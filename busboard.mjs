@@ -42,38 +42,44 @@ const coordinates = await getCoordinates();
 
 
 async function fetchStopCode(lat, long){
+    let nearestTwoStations = [];
+    try {
         const response1 = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=1000`);
         const searchResults = await response1.json();
-       
         searchResults.stopPoints.sort((dist1, dist2) => dist1.distance - dist2.distance);
-        let nearestTwoStations = searchResults.stopPoints.slice(0, 2);
-       
-          return nearestTwoStations.map(station => station.id);
+        nearestTwoStations = searchResults.stopPoints.slice(0, 2);
+        if (nearestTwoStations.length === 0){
+            throw 'No stops';
+        }
+    }
+     catch(err){
+        logger.info("No bus stops found nearby");
+        throw err;
+    }
+    
+        return nearestTwoStations.map(station => station.id);
 }
 
-let stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
+const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
 // console.log(stopCodes);
 
-if (stopCodes.length === 0){
-  
-  logger.info("No bus stops found nearby");
-  process.exit();   
-}
 
 
 async function fetchBuses(stopcodes) {
-    
+   try{ 
   for (const stop of stopcodes)
     {
         const response = await fetch(`https://api.tfl.gov.uk/StopPoint/${stop}/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18`);
         const buses = await response.json();
         
+   
+    if (buses.length === 0) {
+        throw 'No buses arriving.'
+        
+      
+    }
     buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
     let firstFiveBuses = buses.slice(0, 5);
-    if (buses.length === 0) {
-        logger.info(`No bus arrivals currently scheduled at this stop.`)
-        process.exit();
-    }
     logger.info(`Bus Arrivals at ${firstFiveBuses[0].stationName}:`);
    
     for (const bus of firstFiveBuses) {
@@ -82,7 +88,18 @@ async function fetchBuses(stopcodes) {
     }
         
     }
+} catch(err){
+    logger.info(`No bus arrivals currently scheduled at this stop.`)
+    throw err;
+}
  
 }
 
-await fetchBuses(stopCodes); 
+// await fetchBuses(stopCodes); 
+async function busBoard() {
+    const coordinates = await getCoordinates();
+    const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
+    return fetchBuses(stopCodes); 
+}
+
+ busBoard();
