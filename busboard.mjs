@@ -1,11 +1,16 @@
 import fetch from 'node-fetch';
 import readline from 'readline-sync';
+import winston from 'winston';
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
 
 /* fetch('https://api.tfl.gov.uk/StopPoint/490008660N/Arrivals?app_key=ba9752d29aad406bbeb76a9fa432df18')
     .then(response => response.json())
     .then(body => console.log(body)); */
-
-    //let postcode = 'NW51TL';
 
 function getUserInput(prompt) {
     console.log(prompt);
@@ -13,17 +18,19 @@ function getUserInput(prompt) {
 };
 
 async function getCoordinates() {
+    let postcode;
     let longitude = 0;
     let latitude = 0;
     do {
         try {
-            const postcode = getUserInput('Please enter your postcode');
+            postcode = getUserInput('Please enter your postcode');
             const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
             const coordinates = await response.json();
             longitude = coordinates.result.longitude;
             latitude = coordinates.result.latitude;
         }
         catch(err) {
+            logger.info(`User entered ${postcode} as postcode`);
             console.log('Invalid postcode.');
         }
     } while (longitude == 0 && latitude == 0);
@@ -76,7 +83,7 @@ async function fetchBuses(stopCodes) {
     }
 }
 
-async function getDirections() {
+/* async function getDirections() {
     let userWantsDirections;
     do {
         userWantsDirections = getUserInput('Would you like directions to these stops? Enter Y or N');
@@ -85,7 +92,7 @@ async function getDirections() {
         return 'Have a nice trip'
     }
     return 'Goodbye'
-}
+} */
 
 async function busBoard() {
     const coordinates = await getCoordinates();
@@ -94,4 +101,10 @@ async function busBoard() {
 }
 
  busBoard();
- getDirections();
+
+ /*
+POTENTIAL ISSUES
+-Nearest stop(s) is out of service - program should re-reun to find next closest stops that are in service ex: IG11 0FU
+-No stops within default radius - allow user to choose/increase radius
+-No buses coming to nearest stop - program should re-run
+*/
