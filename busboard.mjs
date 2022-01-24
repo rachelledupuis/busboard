@@ -34,7 +34,7 @@ async function getCoordinates() {
             console.log('Invalid postcode.');
         }
     } while (longitude == 0 && latitude == 0);
-return {longitude: longitude, latitude: latitude};
+return {longitude: longitude, latitude: latitude, postcode};
 }
 
 async function fetchStopCode(lat, long){
@@ -56,6 +56,8 @@ async function fetchStopCode(lat, long){
 return nearestTwoStations.map(station => station.id);
 }
 
+let firstFiveBuses;
+
 async function fetchBuses(stopCodes) {
     try {
         for (const stop of stopCodes) {
@@ -67,7 +69,7 @@ async function fetchBuses(stopCodes) {
             }
             
             buses.sort((bus1, bus2) => bus1.timeToStation - bus2.timeToStation);
-            let firstFiveBuses = buses.slice(0, 5);
+            firstFiveBuses = buses.slice(0, 5);
 
             console.log(`The next buses leaving from ${firstFiveBuses[0].stationName}:`);
     
@@ -83,7 +85,7 @@ async function fetchBuses(stopCodes) {
     }
 }
 
-async function getDirections() {
+async function getDirections(from, to) {
     let userWantsDirections;
     do {
         userWantsDirections = getUserInput('Would you like directions to these stops? Enter Y or N');
@@ -91,15 +93,15 @@ async function getDirections() {
     if (userWantsDirections == 'N') {
         return console.log('Have a nice trip')
     }
-    let from = "NW51TL";
-    let to = "NW51BD";
-    const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${to}`);
-    const journeyPlan = await response.json();
-    const turnDirection = journeyPlan.journeys[0].legs[0].instruction.steps
-    const stepDescription = journeyPlan.journeys[0].legs[0].instruction.steps[0].description;
 
-    for (const direction of turnDirection) {
-        console.log(`Go ${direction.turnDirection} ${direction.description}`);
+    for (const stopCode of to) {
+        const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${stopCode}`);
+        const journeyPlan = await response.json();
+        const turnDirection = journeyPlan.journeys[0].legs[0].instruction.steps;
+    
+        for (const direction of turnDirection) {
+            console.log(`${direction.descriptionHeading} ${direction.description}`);
+        }
     }
 }
 
@@ -107,7 +109,7 @@ async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
     await fetchBuses(stopCodes);
-    return await getDirections();
+    return await getDirections(coordinates.postcode, stopCodes);
 }
 
  busBoard();
