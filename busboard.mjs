@@ -7,8 +7,8 @@ import readline from 'readline-sync';
 
     //let postcode = 'NW51TL';
 
-function getPostcodeFromUser() {
-    console.log('Please enter your postcode:');
+function getUserInput(prompt) {
+    console.log(prompt);
     return readline.prompt(); 
 };
 
@@ -17,7 +17,7 @@ async function getCoordinates() {
     let latitude = 0;
     do {
         try {
-            const postcode = getPostcodeFromUser();
+            const postcode = getUserInput('Please enter your postcode');
             const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
             const coordinates = await response.json();
             longitude = coordinates.result.longitude;
@@ -76,10 +76,22 @@ async function fetchBuses(stopCodes) {
     }
 }
 
+async function getDirections() {
+    let userWantsDirections;
+    do {
+        userWantsDirections = getUserInput('Would you like directions to these stops? Enter Y or N');
+    } while (userWantsDirections !== 'Y' && userWantsDirections !== 'N');
+    if (userWantsDirections == 'N') {
+        return 'Have a nice trip'
+    }
+    return 'Goodbye'
+}
+
 async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
-    return fetchBuses(stopCodes); 
+    return fetchBuses(stopCodes);
 }
 
  busBoard();
+ getDirections();
