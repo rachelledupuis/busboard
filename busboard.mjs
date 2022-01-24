@@ -9,11 +9,9 @@ const logger = winston.createLogger({
 });
 
 
-const getPostCode = ()=>{ 
-    console.log('Please enter your post code in the format - NW51TL:');
-    let responsePostCode = readline.prompt();
-    logger.warn(`You entered ${responsePostCode}`);
-    return responsePostCode;
+const getUserInput = (prompt)=>{ 
+    console.log(prompt);
+    return readline.prompt();
 }
 
 
@@ -21,10 +19,12 @@ async function getCoordinates() {
 
     let longitude = 0;
     let latitude = 0;
+    let postcode = "";
     while (longitude == 0 && latitude == 0){
+
         try 
         {
-            const postcode = getPostCode();
+            postcode = getUserInput("Please enter your postcode");
             const response = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
             const coordinates = await response.json();
             longitude = coordinates.result.longitude;
@@ -34,11 +34,11 @@ async function getCoordinates() {
             logger.error(`Invalid postcode.`);
         }
     } 
-return {longitude: longitude, latitude: latitude};
+return {longitude: longitude, latitude: latitude, postcode};
 }
 
 logger.info("***************New Instance*****************");
-const coordinates = await getCoordinates();
+
 
 
 async function fetchStopCode(lat, long){
@@ -60,7 +60,7 @@ async function fetchStopCode(lat, long){
         return nearestTwoStations.map(station => station.id);
 }
 
-const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
+// const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
 // console.log(stopCodes);
 
 
@@ -95,24 +95,33 @@ async function fetchBuses(stopcodes) {
  
 }
 
-await fetchBuses(stopCodes); 
 
+async function getDirections(from,to) {
+    let userWantsDirections;
+    do {
+        userWantsDirections = getUserInput('Would you like directions to these stops? Enter Y or N');
+    } while (userWantsDirections !== 'Y' && userWantsDirections !== 'N');
+    if (userWantsDirections == 'N') {
+        return console.log('Have a nice trip')
+    }
+  
 
-async function getDirections (){
-    let from = "HA29PP";
-    let to = "NW51TL";
-const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${to}`);
-const journeyPlan = await response.json();
-console.log(journeyPlan);
+for (const stopCode of to){
+    const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${stopCode}`);
+    const journeyPlan = await response.json();
+    const turnDirection = journeyPlan.journeys[0].legs[0].instruction.steps
+   
+    for (const direction of turnDirection) {
+        console.log(`Go ${direction.descriptionHeading} ${direction.description}`);
+    }
+ }
 }
-
-await getDirections();
-
 
 async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
-    return fetchBuses(stopCodes); 
+    console.log(await fetchBuses(stopCodes));
+  return await getDirections(coordinates.postcode,stopCodes);
 }
 
  busBoard();
