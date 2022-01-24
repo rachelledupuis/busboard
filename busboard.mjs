@@ -83,21 +83,31 @@ async function fetchBuses(stopCodes) {
     }
 }
 
-/* async function getDirections() {
+async function getDirections() {
     let userWantsDirections;
     do {
         userWantsDirections = getUserInput('Would you like directions to these stops? Enter Y or N');
     } while (userWantsDirections !== 'Y' && userWantsDirections !== 'N');
     if (userWantsDirections == 'N') {
-        return 'Have a nice trip'
+        return console.log('Have a nice trip')
     }
-    return 'Goodbye'
-} */
+    let from = "NW51TL";
+    let to = "NW51BD";
+    const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${to}`);
+    const journeyPlan = await response.json();
+    const turnDirection = journeyPlan.journeys[0].legs[0].instruction.steps
+    const stepDescription = journeyPlan.journeys[0].legs[0].instruction.steps[0].description;
+
+    for (const direction of turnDirection) {
+        console.log(`Go ${direction.turnDirection} ${direction.description}`);
+    }
+}
 
 async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
-    return fetchBuses(stopCodes);
+    await fetchBuses(stopCodes);
+    return await getDirections();
 }
 
  busBoard();
