@@ -44,8 +44,8 @@ const coordinates = await getCoordinates();
 async function fetchStopCode(lat, long){
     let nearestTwoStations = [];
     try {
-        const response1 = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=1000`);
-        const searchResults = await response1.json();
+        const response = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${long}&stopTypes=NaptanPublicBusCoachTram&radius=1000`);
+        const searchResults = await response.json();
         searchResults.stopPoints.sort((dist1, dist2) => dist1.distance - dist2.distance);
         nearestTwoStations = searchResults.stopPoints.slice(0, 2);
         if (nearestTwoStations.length === 0){
@@ -95,7 +95,20 @@ async function fetchBuses(stopcodes) {
  
 }
 
-// await fetchBuses(stopCodes); 
+await fetchBuses(stopCodes); 
+
+
+async function getDirections (){
+    let from = "HA29PP";
+    let to = "NW51TL";
+const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${to}`);
+const journeyPlan = await response.json();
+console.log(journeyPlan);
+}
+
+await getDirections();
+
+
 async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);

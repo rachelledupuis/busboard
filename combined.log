@@ -27,3 +27,13 @@
 {"level":"info","message":"Bus Arrivals at Malvern Avenue:"}
 {"level":"info","message":"Bus H10 to Northwick Park Hospital is arriving in 5 minutes."}
 {"level":"info","message":"Bus H10 to Northwick Park Hospital is arriving in 22 minutes."}
+{"level":"info","message":"***************New Instance*****************"}
+{"level":"warn","message":"You entered HA29PP"}
+{"level":"info","message":"Bus Arrivals at Malvern Avenue:"}
+{"level":"info","message":"Bus H9 to Northwick Park Hospital is arriving in 0 minutes."}
+{"level":"info","message":"Bus H9 to Northwick Park Hospital is arriving in 9 minutes."}
+{"level":"info","message":"Bus H9 to Northwick Park Hospital is arriving in 18 minutes."}
+{"level":"info","message":"Bus H9 to Northwick Park Hospital is arriving in 28 minutes."}
+{"level":"info","message":"Bus Arrivals at Malvern Avenue:"}
+{"level":"info","message":"Bus H10 to Northwick Park Hospital is arriving in 1 minutes."}
+{"level":"info","message":"Bus H10 to Northwick Park Hospital is arriving in 10 minutes."}
