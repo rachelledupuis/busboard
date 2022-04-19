@@ -94,6 +94,7 @@ async function getDirections(from, to) {
         const response = await fetch (`https://api.tfl.gov.uk/Journey/JourneyResults/${from}/to/${stopCode}`);
         const journeyPlan = await response.json();
         const turnDirection = journeyPlan.journeys[0].legs[0].instruction.steps;
+        //console.log(journeyPlan.journeys[0].legs[0].instruction.steps[0].description)
     
         for (const direction of turnDirection) {
             console.log(`${direction.descriptionHeading} ${direction.description}`);
@@ -104,6 +105,7 @@ async function getDirections(from, to) {
 async function busBoard() {
     const coordinates = await getCoordinates();
     const stopCodes = await fetchStopCode(coordinates.latitude, coordinates.longitude);
+    console.log(stopCodes);
     await fetchBuses(stopCodes);
     return await getDirections(coordinates.postcode, stopCodes);
 }
